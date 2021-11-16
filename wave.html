@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<title>Wavelength</title>
+<link rel="stylesheet" href="css/wave.css"/>
+<!-- <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script> -->
+<!-- <script src="js/jquery-3.5.1.min.js"></script> -->
+<script defer src="js/wave.js" charset="utf-8"></script>
+</head>
+
+<body>
+
+  <div class="gameBox">
+
+    <div class="promptArea">
+      <h1>WAVELENGTH</h1>
+      <p class='prompt' id='prompt'>Press Start!</p>
+    </div>
+
+    <div class='targetArea'>
+      <div class='tarwindow' onclick="screenTog()">
+        <div class='targetBox' id='targetBox'>
+          <div class='pt3'> 
+            <div class="pt4">4</div>
+          </div> 
+        </div>
+        <div id='screen' class='screen'></div>
+        <div class='guessLine' id='guessLine'></div>
+      </div>
+      
+      <input type="range" id='tarSlider' name='tarSlider' min='1' max='99' onclick="updateGuess()">
+    </div>
+
+    <div class='totArea'>
+      <div class='totL' id='totL'></div>
+      <div class='totR' id='totR'></div>
+    </div>
+
+    
+    <div class="gameArea">
+      <div class='gameButts'>
+        <button onclick="drawTot();">Draw</button>  
+        <button id='random' onclick="getTarget();">Randomize</button>
+        <button id='guess' onclick="setGuess();">Guess</button>
+      </div>
+      <div class="clueArea">
+        <!-- <div class='psychic'>
+          Psychic: <span id='psychic'>Evan</span>
+        </div> -->
+        <div class='clue' id='clueField' onclick="newClue()">
+          
+        </div>
+      </div>
+      <div class="gameButts">
+        <button id='over' onclick="overUnder(id)">higher</button>
+        <button id='equal' onclick="overUnder(id)">equal</button>
+        <button id='under' onclick="overUnder(id)">lower</button>
+      </div>
+    </div>
+
+    <div class='playArea'>
+      <div class='score' id='t1s'>0</div>
+        <div class="teamBox" id='t1b'>
+          <div class='lightBox'>
+            <div class="greenlight" id='t1g'></div>
+            <div class="redlight" id='t1r'></div>
+          </div>
+          <div class='players'>
+            <ul class='team' id='t1'>
+
+            </ul>
+          </div>
+        </div>
+      <div class="options">
+        <button onclick="startGame()" id='startButt'>Start</button>
+        <button class='' onclick="newPlayerWindow()">Add Player</button>
+        <button class='' onclick="makeTeams()">Make Teams</button>
+      </div>
+      <div class="teamBox" id='t2b'>
+        <div class='lightBox'>
+          <div class="greenlight" id='t2g'></div>
+          <div class="redlight" id='t2r'></div>
+        </div>
+        <div class='players'>
+          <ul class='team' id='t2'>
+
+          </ul>
+        </div>
+      </div>  
+      <div class='score' id='t2s'>0</div>
+    </div>
+
+    <div class="modalBG" id='modalBG'>
+      <div class="modalArea" id='modalTots'>
+        Choose One
+        <div class="totLine" id="opt0" onclick="pickTot(this.id)">
+          <div class='totL' id='opt0L'>hot</div>
+          <div class='totR' id='opt0R'>cold</div>
+        </div>
+        <div class="totLine" id="opt1" onclick="pickTot(this.id)">
+          <div class='totL' id='opt1L'>big</div>
+          <div class='totR' id='opt1R'>small</div>
+        </div>
+        <div class="totLine" id="opt2" onclick="pickTot(this.id)">
+          <div class='totL' id='opt2L'>bird</div>
+          <div class='totR' id='opt2R'>lizard</div>
+        </div>
+      </div>
+      
+      <div class="modalArea" id='modalClue'>
+        <label class='clueLine' for="clueField">Enter Clue:</label>
+        <input class='clueLine' type="text" id="newClue" name="clueField">
+        <button class='clueLine' onclick="enterClue()">Submit</button>
+      </div>
+
+      <div class="modalArea" id='addPlayer'>
+        Enter player name:
+        <input type="text" id='newPlayer'>
+        <button class='' onclick="addPlayer()">Add Player</button>
+      </div>
+
+    </div>
+  
+  </div>
+  </div>
+  
+
+</body>
+
+</html>
