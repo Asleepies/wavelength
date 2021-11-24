@@ -29,7 +29,6 @@
         <div id='screen' class='screen'></div>
         <div class='guessLine' id='guessLine'></div>
       </div>
-      
       <input type="range" id='tarSlider' name='tarSlider' min='1' max='99' onclick="updateGuess()">
     </div>
 
@@ -91,6 +90,13 @@
       </div>  
       <div class='score' id='t2s'>0</div>
     </div>
+    <!-- <div>
+      <button onclick="reset()">reset</button>
+      <button onclick="finState()">clear state</button>
+      <button onclick="checkState()">check state</button>
+      <button onclick="checkGame()">print game</button>
+      <button onclick="checkSlide()">check slide</button>
+    </div> -->
 
     <div class="modalBG" id='modalBG'>
       <div class="modalArea" id='modalTots'>
@@ -118,7 +124,12 @@
       <div class="modalArea" id='addPlayer'>
         Enter player name:
         <input type="text" id='newPlayer'>
-        <button class='' onclick="addPlayer()">Add Player</button>
+        <button onclick="addPlayer()">Add Player</button>
+      </div>
+
+      <div class="modalArea" id='modalWin'>
+        <span id='winner'></span>
+        <button onclick="reset(1)">Hell Yeah</button>
       </div>
 
     </div>

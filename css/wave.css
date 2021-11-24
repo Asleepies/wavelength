@@ -121,7 +121,7 @@ li {
   left: -1%;
   margin: auto;
   height: 100%;
-  width: 0%;
+  width: 102%;
   background-color: var(--mainBG);
   border-radius: 15px;
   transition: width 0.5s ease-in;
@@ -333,7 +333,6 @@ li {
   height: 100%;
   left: 0;
   top: 0;
-  
   /* background-color: rgba(0,0,0,0.4); Black w/ opacity */
 }
 
@@ -374,6 +373,9 @@ li {
   display: none;
 }
 #addPlayer {
+  display: none;
+}
+#modalWin {
   display: none;
 }
 .clueLine {
