@@ -5,8 +5,6 @@
 <meta charset="UTF-8">
 <title>Wavelength</title>
 <link rel="stylesheet" href="css/wave.css"/>
-<!-- <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script> -->
-<!-- <script src="js/jquery-3.5.1.min.js"></script> -->
 <script defer src="js/wave.js" charset="utf-8"></script>
 </head>
 
@@ -16,7 +14,7 @@
 
     <div class="promptArea">
       <h1>WAVELENGTH</h1>
-      <p class='prompt' id='prompt'>Press Start!</p>
+      <!-- <p class='prompt' id='prompt'>Add some players, then press Start!</p> -->
     </div>
 
     <div class='targetArea'>
@@ -29,7 +27,7 @@
         <div id='screen' class='screen'></div>
         <div class='guessLine' id='guessLine'></div>
       </div>
-      <input type="range" id='tarSlider' name='tarSlider' min='1' max='99' onclick="updateGuess()">
+      <input type="range" id='tarSlider' name='tarSlider' min='1' max='99' onchange="updateGuess()">
     </div>
 
     <div class='totArea'>
@@ -40,22 +38,18 @@
     
     <div class="gameArea">
       <div class='gameButts'>
-        <button onclick="drawTot();">Draw</button>  
-        <button id='random' onclick="getTarget();">Randomize</button>
-        <button id='guess' onclick="setGuess();">Guess</button>
+        <button id='under' onclick="overUnder(id)">Left</button>
       </div>
       <div class="clueArea">
         <!-- <div class='psychic'>
           Psychic: <span id='psychic'>Evan</span>
         </div> -->
         <div class='clue' id='clueField' onclick="newClue()">
-          
+          <span style="opacity:.25;font-size:.4em;">enter clues here</span>
         </div>
       </div>
       <div class="gameButts">
-        <button id='over' onclick="overUnder(id)">higher</button>
-        <button id='equal' onclick="overUnder(id)">equal</button>
-        <button id='under' onclick="overUnder(id)">lower</button>
+        <button id='over' onclick="overUnder(id)">Right</button>
       </div>
     </div>
 
@@ -74,8 +68,8 @@
         </div>
       <div class="options">
         <button onclick="startGame()" id='startButt'>Start</button>
-        <button class='' onclick="newPlayerWindow()">Add Player</button>
-        <button class='' onclick="makeTeams()">Make Teams</button>
+        <button onclick="options()">options</button>
+        
       </div>
       <div class="teamBox" id='t2b'>
         <div class='lightBox'>
@@ -90,12 +84,17 @@
       </div>  
       <div class='score' id='t2s'>0</div>
     </div>
-    <!-- <div>
+
+    <div class="promptArea">
+      <p class='prompt' id='prompt'>Add some players (options), then press Start!</p>
+      <p class='prompt' id='lowerPrompt'></p>
+    </div>
+    <!-- <div id='devArea'>
       <button onclick="reset()">reset</button>
       <button onclick="finState()">clear state</button>
-      <button onclick="checkState()">check state</button>
-      <button onclick="checkGame()">print game</button>
-      <button onclick="checkSlide()">check slide</button>
+      <button onclick="logState()">check state</button>
+      <button onclick="logGame()">print game</button>
+      <button onclick="logSlide()">check slide</button>
     </div> -->
 
     <div class="modalBG" id='modalBG'>
@@ -116,20 +115,36 @@
       </div>
       
       <div class="modalArea" id='modalClue'>
-        <label class='clueLine' for="clueField">Enter Clue:</label>
+        <label class='clueLine' for="clueField">Enter a one word clue about the target's position:</label>
         <input class='clueLine' type="text" id="newClue" name="clueField">
         <button class='clueLine' onclick="enterClue()">Submit</button>
       </div>
 
       <div class="modalArea" id='addPlayer'>
-        Enter player name:
+        Enter player names to add
         <input type="text" id='newPlayer'>
-        <button onclick="addPlayer()">Add Player</button>
+        <button onclick="addRemovePlayer()">Submit</button>
+      </div>
+
+      <div class="modalArea" id='removePlayer'>
+        Enter player names to remove
+        <input type="text" id='exPlayer'>
+        <button onclick="addRemovePlayer(1)">Submit</button>
+      </div>
+
+      <div class="modalArea" id='optionsBox'>
+        <span id='optionsHeader'>Options:</span>
+        <button onclick="newPlayerWindow()">Add Players</button>
+        <button onclick="removePlayerWindow()">Remove Players</button>
+        <button onclick="makeTeams()">Randomize teams</button>
+        <button onclick="oopsRedrawd()">Oops, redraw</button>
+        <button onclick="reset()">reset</button>
+        <button onclick="optionsClose()" id='optClose'>&#9747;</button>
       </div>
 
       <div class="modalArea" id='modalWin'>
         <span id='winner'></span>
-        <button onclick="reset(1)">Hell Yeah</button>
+        <button onclick="reset(1)">Hell Yeah!</button>
       </div>
 
     </div>

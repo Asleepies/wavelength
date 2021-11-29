@@ -1,16 +1,16 @@
 //require('dotenv').config();
-let roundref =   //5 and 10 unnessary but haven't updated for without
-  `0   no game
-  1   t1 psychic chooses prompt
-  2   t1 psychic sets clue
-  3   t1 guesses target
-  4   t2 guesses over under
-  5   reveal target, update scores, switch teams
-  6   t2 psychic chooses prompt
-  7   t2 psychic sets clue
-  8   t2 guesses target
-  9   t1 guesses over under
-  10  reveal target, update scores`
+// let roundref =   //5 and 10 unnessary but haven't updated for without
+//   `0   no game
+//   1   t1 psychic chooses prompt
+//   2   t1 psychic sets clue
+//   3   t1 guesses target
+//   4   t2 guesses over under
+//   5   reveal target, update scores, change teams
+//   6   t2 psychic chooses prompt
+//   7   t2 psychic sets clue
+//   8   t2 guesses target
+//   9   t1 guesses over under
+//   10  reveal target, update scores`;
 
 let cards = [["Bad","Good"],
 ["Mildly addictive","Highly addictive"],
@@ -263,7 +263,8 @@ let cards = [["Bad","Good"],
 ["Expected","Unexpected"],
 ["Person you could beat up","Person who'd beat you up"],
 ["Unreasonable phobia","Reasonable phobia"],
-["Underrated game","Overrated game"]];
+["Underrated game","Overrated game"]
+];
 
 let game = {
   current: [],
@@ -280,22 +281,22 @@ let game = {
   guess: 0
 }
 
-const finState = () => {
+function finState() {
   window.localStorage.removeItem('waveGame');
 }
-const setState = () => {
+function setState() {
   game.saveTime = Date.now();
   window.localStorage.setItem('waveGame', JSON.stringify(game))
 }
-const getState = () => {
+function getState() {
   let gameSave =  window.localStorage.getItem('waveGame')
   if (gameSave) {
     game = JSON.parse(gameSave);
-    if ((Date.now() - game.saveTime)/1000 <= 120) {
+    if ((Date.now() - game.saveTime)/1000 <= 1200) {
       lightTog();
       screenTog();
       updateTeams();
-      updatePrompt();
+      promptUpdate();
       updateTot();
       if (game.round == 4 || game.round == 9) {
         document.getElementById('t1s').innerHTML = '-';
@@ -303,18 +304,18 @@ const getState = () => {
       } else {
         updateScore();
       }
-      document.getElementById('clueField').innerHTML = game.clue.toUpperCase();
+      if (game.clue) {
+        document.getElementById('clueField').innerHTML = game.clue.toUpperCase();
+      }
       let targetBox = document.getElementById('targetBox')
       targetBox.style.left = game.target - 12 + "%"
-      if (game.round > 0) {
-        document.getElementById('startButt').innerHTML = 'Reset';
-      }
+      startButton();
     } else {
       finState();
     }
   }
 }
-const updateTeams = () => {
+function updateTeams() { //updates the team windows
   document.getElementById("t1").innerHTML = '';
   document.getElementById("t2").innerHTML = ''; 
   if (game.team1) { 
@@ -332,19 +333,19 @@ const updateTeams = () => {
     });
   };
 }
-const updateGuess = () => {
+function updateGuess() { //matches redline to the slider position
   let line = document.getElementById('guessLine');
   let input = document.getElementById('tarSlider').value
   line.style.left = input + '%';
 }
-const updatePrompt = () => {
+function promptUpdate() {
   let info = document.getElementById('prompt')
   const prompts = [
     'Press Start!',
-    'To select a prompt click Draw',
-    'Psychic, click randomize, and give a clue',
-    'Move the slider to the target and click Guess',
-    'Is the target higher, lower, or equal to the guess?',
+    "Psychic, click draw to pick a prompt.<br>Don't show anyone!",
+    'Enter a clue, then show your team<br>after the target is hidden',
+    `Move the slider to where the target is.<br>Then click Guess`,
+    'Other team, is the target to the right,<br>or to the left of line?',
     ''
   ]
   switch (game.round) {
@@ -437,95 +438,151 @@ const winner = (team) => {
   document.getElementById('winner').innerHTML =  `Team ${team} Wins!`;
   document.getElementById('prompt').innerHTML =  `Team ${team} Wins!`;
 }
-const newPlayerWindow = () => {
+function newPlayerWindow () {
   if (game.round == 0) {
+    document.getElementById('optionsBox').style.display = 'none';
     document.getElementById('modalBG').style.display = 'block';
     document.getElementById('addPlayer').style.display = 'flex'; 
-  };
+  } else {
+    document.getElementById('optionsHeader').innerHTML = `Options:<br>Can't do that right now`;
+    console.log(`Can't do that right now`)
+  }
 }
-const addPlayer = () => {
-  if (game.round == 0) {
+function removePlayerWindow() {
+    document.getElementById('optionsBox').style.display = 'none';
+    document.getElementById('modalBG').style.display = 'block';
+    document.getElementById('removePlayer').style.display = 'flex';
+}
+function addRemovePlayer (n=0) {
+  if (n == 0) {
     let newPlayer = document.getElementById('newPlayer');
-    if (newPlayer.value) {
-      let newPlayerLine = document.createElement("li");
-      newPlayerLine.innerHTML = newPlayer.value;
-      if (game.team1.length <= game.team2.length) { 
-        game.team1.push(newPlayer.value) 
-        let t1 = document.getElementById("t1");
-        t1.appendChild(newPlayerLine)
-      } else {
-        game.team2.push(newPlayer.value);
-        let t2 = document.getElementById("t2");
-        t2.appendChild(newPlayerLine)
+    let all = newPlayer.value.split(' ')
+    all.forEach(el => {
+      if (!el) {
+        return;
       }
-    }
+      if (game.team1.length <= game.team2.length) { 
+        game.team1.push(el) 
+      } else {
+        game.team2.push(el);
+      }
+    })
+    updateTeams();
+    setState();
+  } else {
+    let exPlayer = document.getElementById('exPlayer');
+    let all = exPlayer.value.split(' ')
+    all.forEach(el => {
+      if (!el) {
+        return;
+      }
+      if (game.team1.includes(el)) { 
+        game.team1.splice(el,1) 
+      } else if (game.team2.includes(el)) {
+        game.team2.splice(el,1)
+      }
+    })
+    updateTeams();
     setState();
   }
   newPlayer.value = '';
   document.getElementById('modalBG').style.display = 'none';
   document.getElementById('addPlayer').style.display = 'none';
-  // console.log(game.team) 
+  document.getElementById('removePlayer').style.display = 'none';
+
 }
 const makeTeams = () => {
-  if (game.team1.length + game.team2.length < 2) {
-    console.log('You need more people!');
-  } else if (game.round > 0) {
-    console.log('too late, teams set')
-  } else {
-    let peeps= game.team1.concat(game.team2);
-    const check = peeps.slice(0);
-    game.team1 = [];
-    game.team2 = []; 
-    for (var i = 0; i < check.length; i++) {
-      let plyr = peeps.splice(Math.floor(Math.random() * peeps.length),1);
-      if (game.team1.length <= game.team2.length) { 
-        game.team1.push(plyr[0]);
-      } else {
-        game.team2.push(plyr[0]);
+  if (game.round==0) {
+    document.getElementById('optionsBox').style.display = 'none';
+    document.getElementById('modalBG').style.display = 'none';
+    if (game.team1.length + game.team2.length < 2) {
+      console.log('You need more people!');
+    } else if (game.round > 0) {
+      console.log('too late, teams set')
+    } else {
+      let peeps= game.team1.concat(game.team2);
+      const check = peeps.slice(0);
+      game.team1 = [];
+      game.team2 = []; 
+      for (var i = 0; i < check.length; i++) {
+        let plyr = peeps.splice(Math.floor(Math.random() * peeps.length),1);
+        if (game.team1.length <= game.team2.length) { 
+          game.team1.push(plyr[0]);
+        } else {
+          game.team2.push(plyr[0]);
+        }
       }
+      updateTeams();
+      setState();
     }
-    updateTeams();
-    setState();
-  }
-}
-const getPsych = () => {
-  // // let toPsych = 'one'
-  // // tots.team ? toPsych = 'one' : toPsych = 'two';
-  // let psych;
-  // if (tots.team) {
-  //   let peeps = team.one.filter(mem => !team.psych1.includes(mem));
-  //   peeps.length > 0 ? psych = peeps[Math.floor(Math.random() * peeps.length)] : psych = team.psych1[0];
-  // } else {
-  //   let peeps = team.two.filter(mem => !team.psych2.includes(mem));
-  //   psych = peeps[Math.floor(Math.random() * peeps.length)];
-  // }
-  // document.getElementById('psychic').innerHTML = psych;
-}
-const startGame = () => {
-  let screen = document.getElementById('screen');
-  if (game.round > 0) {
-    document.getElementById('startButt').innerHTML = 'Start';
-    reset();
   } else {
-    game.round = 1;
-    updatePrompt();
-    updateScore();
-    lightTog();
-    screen.style.width = '0%';
-    document.getElementById('startButt').innerHTML = 'Reset';
+    document.getElementById('optionsHeader').innerHTML = `Options:<br>Can't do that right now`; 
   }
-  // console.log(game)
 }
-const reset = (opt=0) => {
-  if (opt == 1) {
+function options() {
+  document.getElementById('modalBG').style.display = 'block';
+  document.getElementById('optionsBox').style.display = 'flex';
+}
+function optionsClose() {
+  document.getElementById('optionsBox').style.display = 'none';
+  document.getElementById('modalBG').style.display = 'none';
+}
+function startGame() {    //controls the actions of the middle button
+  let screen = document.getElementById('screen');
+  switch(game.round) {
+    case 0:             //button="start", starts new game
+      game.round = 1;
+      promptUpdate();
+      updateScore();
+      lightTog();
+      screen.style.width = '0%';
+      startButton();
+      break;
+    case 1:             //button="draw" draws psychic prompt
+    case 6:
+      drawTot();
+      startButton();
+      break;
+    case 2:             //button='enter clue" opens clue window
+    case 7:
+      newClue();
+      break;
+    case 3:             //button='guess' set's team's slider guess
+    case 8:
+      setGuess();
+      startButton();
+      break;
+    default:
+      return;
+  }
+}
+function startButton() { //controls text on middle button
+  switch (game.round) {
+    case 0: document.getElementById('startButt').innerHTML = 'Start';
+      break;
+    case 1:
+    case 6: document.getElementById('startButt').innerHTML = 'Draw';
+      break;
+    case 2:
+    case 7: document.getElementById('startButt').innerHTML = 'Enter Clue';
+      break;
+    default: document.getElementById('startButt').innerHTML = 'Guess';
+
+  }
+
+}
+function reset(opt=0) {
+  if (opt == 1) {       //win reset
     document.getElementById('modalBG').style.display = 'none';
     document.getElementById('modalWin').style.display = 'none';
-  } else {
+  } else {            //regular reset
+    document.getElementById('optionsBox').style.display = 'none';
+    document.getElementById('modalBG').style.display = 'none';
     game.score = [0,0];
     game.clue = '';
     game.round = 0;
-    game.team1 = [];
-    game.team2 = [];
+    // game.team1 = [];
+    // game.team2 = [];
     game.current = [];
     game.draw = [];
     game.discard = [];
@@ -535,12 +592,33 @@ const reset = (opt=0) => {
     updateTeams();
     updateTot();
     lightTog();
-    document.getElementById('clueField').innerHTML = '';
+    document.getElementById('clueField').innerHTML = 
+    '<span style="opacity:.25;font-size:.4em;">enter clues here</span>';
   }
+  promptUpdate();
   finState();
   document.getElementById('startButt').innerHTML = 'Start';
 }
-const drawTot = () => {
+function oopsRedrawd() {  //steps back if playrs need to reset turn
+  optionsClose()
+  switch (game.round) {
+    case 3:
+    case 4:
+      game.round = 1;
+      break;
+    case 8:
+    case 9:
+      game.round = 6;
+      break;
+    default:
+      return;
+  }
+  promptUpdate();
+  screenTog();
+  setState();
+  startButton();
+}
+function drawTot() { //draws three prompt options to choose from
   if (game.round == 1 || game.round == 6) {
     let pot = cards.filter(card => !game.discard.includes(card));
     for (var i = 1; i < 4; i++) { 
@@ -558,7 +636,7 @@ const drawTot = () => {
     document.getElementById('modalTots').style.display = 'flex';
   }
 }
-const pickTot = (id) => {
+const pickTot = (id) => { //selects chosen prompt
   let pick = id[3];
   if (game.current.length > 0) {
     game.discard.push(game.current) };
@@ -566,12 +644,16 @@ const pickTot = (id) => {
   game.draw.splice(0);
   game.round +=1; //increment to 2/7
   updateTot();
-  updatePrompt();
+  promptUpdate();
   setState();
   document.getElementById('modalBG').style.display = 'none'
   document.getElementById('modalTots').style.display = 'none';
+  getTarget();
+  document.getElementById('tarSlider').value = 50;
+  updateGuess();
+  startButton();
 }
-const randomTot = () => {
+function randomTot() { //selects a random prompt, not in game. 
   let pot = cards.filter(card => !game.discard.includes(card));
   if (game.current.length > 0) {
     game.discard.push(game.current) }
@@ -586,32 +668,36 @@ const randomTot = () => {
   right.innerHTML = game.current[1].toUpperCase();
   setState();
 }
-const newClue = () => {
+function newClue() { //opens the window to enter clues
   if (game.round == 2 || game.round == 7) {
     document.getElementById('modalBG').style.display = 'block';
     document.getElementById('modalClue').style.display = 'flex';
     document.getElementById('newClue').value = '';
+    document.getElementById('screen').style.width = '0%'
   }
 }
-const enterClue = () => {
+function enterClue() { //presents the clue 
   let clue = document.getElementById('newClue').value;
-  document.getElementById('clueField').innerHTML = clue.toUpperCase();
-  document.getElementById('modalBG').style.display = 'none';
-  document.getElementById('modalClue').style.display = 'none';
-  document.getElementById('screen').style.width = '102%'
-  game.clue = clue;
-  game.round +=1; //increment to 3/8
-  updatePrompt();
-  setState();
+  if (clue) {
+    document.getElementById('clueField').innerHTML = clue.toUpperCase();
+    document.getElementById('modalBG').style.display = 'none';
+    document.getElementById('modalClue').style.display = 'none';
+    document.getElementById('screen').style.width = '102%'
+    game.clue = clue;
+    game.round +=1; //increment to 3/8
+    promptUpdate();
+    setState();
+    startButton();
+  }
   // console.log(game)
 }
-const getTarget = () => {
+function getTarget() { //gets a random target and moves the target box
   game.target = Math.floor(Math.random() * 100);
   let targetBox = document.getElementById('targetBox')
   targetBox.style.left = game.target - 12 + "%"
   setState();
 }
-const setGuess = () => {
+const setGuess = () => { //set's the main team's guess on the slider
   if (game.round == 3 || game.round == 8) {
     let score = 0;
     let guess = document.getElementById('tarSlider').value
@@ -629,11 +715,11 @@ const setGuess = () => {
     game.round += 1; //increment to 4/9
     setState();
     lightTog();
-    updatePrompt();
+    promptUpdate();
     // console.log(game)
   } 
 }
-const overUnder = (id) => {
+const overUnder = (id) => { //
   if (game.round == 4 || game.round == 9) {
     let compare = game.target - document.getElementById('tarSlider').value;
     let score = 0;
@@ -651,25 +737,25 @@ const overUnder = (id) => {
     } else {
       game.round += 2;
     }
-    updatePrompt(); 
+    document.getElementById('startButt').innerHTML = 'Draw';
+    promptUpdate(); 
     screenTog();
     lightTog();
     setState();
     // console.log(game)
   }
 }
-function checkState() {
+function logState() {
   console.log(window.localStorage.getItem('waveGame'));
 } 
-function checkGame() {
+function logGame() {
   console.log(game)
 }
-function checkSlide() {
+function logSlide() {
   console.log(document.getElementById('tarSlider').value)
 }
 
 getState();
-updateGuess();
-// console.log(game);
-
-
+updateTeams();
+setTimeout(updateGuess, 10);
+document.getElementById('tarSlider').value=50;
