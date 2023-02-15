@@ -305,7 +305,7 @@ function getState() {
         updateScore();
       }
       if (game.clue) {
-        document.getElementById('clueField').innerHTML = game.clue.toUpperCase();
+        document.getElementById('clueField').innerHTML = `<span id="clueSpan">${game.clue.toUpperCase()}</span>`;
       }
       let targetBox = document.getElementById('targetBox')
       targetBox.style.left = game.target - 12 + "%"
@@ -420,13 +420,17 @@ const lightTog = () => {
     t1r.classList.toggle('turn');
   }
 }
+const test = () => {
+  const screen = document.getElementById('screen')
+  screen.innerHTML = screen.offsetWidth
+}
 const screenTog = () => {
-  const allowed = [0,1,2,6,7]
-  let screen = document.getElementById('screen')
+  const allowed = [0,1,2,5,6,7,10]
+  const screen = document.getElementById('screen')
   if (!game.current.length) {
     screen.style.width = '0%';
   } else if (allowed.includes(game.round)) {
-    screen.offsetWidth == 432 ? screen.style.width = '0%' : screen.style.width = '102%';
+    (screen.offsetWidth == 432 || screen.offsetWidth == 270) ? screen.style.width = '0%' : screen.style.width = '102%';
   } else {
     screen.style.width = '102%';
   }
@@ -523,6 +527,15 @@ function options() {
   document.getElementById('modalBG').style.display = 'block';
   document.getElementById('optionsBox').style.display = 'flex';
 }
+function howTo() {
+  document.getElementById('modalBG').style.display = 'block';
+  document.getElementById('modalHow').style.display = 'flex';
+  document.getElementById('optionsBox').style.display = 'none';
+}
+function howClose() {
+  document.getElementById('modalBG').style.display = 'none';
+  document.getElementById('modalHow').style.display = 'none';
+}
 function optionsClose() {
   document.getElementById('optionsBox').style.display = 'none';
   document.getElementById('modalBG').style.display = 'none';
@@ -602,10 +615,12 @@ function reset(opt=0) {
 function oopsRedrawd() {  //steps back if playrs need to reset turn
   optionsClose()
   switch (game.round) {
+    case 2:
     case 3:
     case 4:
       game.round = 1;
       break;
+    case 7:
     case 8:
     case 9:
       game.round = 6;
@@ -615,6 +630,7 @@ function oopsRedrawd() {  //steps back if playrs need to reset turn
   }
   promptUpdate();
   screenTog();
+  lightTog();
   setState();
   startButton();
 }
@@ -679,9 +695,7 @@ function newClue() { //opens the window to enter clues
 function enterClue() { //presents the clue 
   let clue = document.getElementById('newClue').value;
   if (clue) {
-    document.getElementById('clueField').innerHTML = clue.toUpperCase();
-    document.getElementById('modalBG').style.display = 'none';
-    document.getElementById('modalClue').style.display = 'none';
+    document.getElementById('clueField').innerHTML = `<span id="clueSpan">${clue.toUpperCase()}</span>`;
     document.getElementById('screen').style.width = '102%'
     game.clue = clue;
     game.round +=1; //increment to 3/8
@@ -689,6 +703,8 @@ function enterClue() { //presents the clue
     setState();
     startButton();
   }
+  document.getElementById('modalBG').style.display = 'none';
+  document.getElementById('modalClue').style.display = 'none';
   // console.log(game)
 }
 function getTarget() { //gets a random target and moves the target box
@@ -720,8 +736,9 @@ const setGuess = () => { //set's the main team's guess on the slider
   } 
 }
 const overUnder = (id) => { //
+  const guess = document.getElementById('tarSlider')
   if (game.round == 4 || game.round == 9) {
-    let compare = game.target - document.getElementById('tarSlider').value;
+    let compare = game.target - guess.value;
     let score = 0;
     if (id == 'over' && compare > 2) { 
         score = 1;
